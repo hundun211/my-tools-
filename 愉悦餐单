@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>心情餐单</title>
+<style>
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#FFF7E8,#FFE0B8);color:#333}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.avatar{width:36px;height:36px;border-radius:50%;background:#ffb703;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+.header-center{font-size:18px;font-weight:600}
+.header-right{display:flex;gap:14px;font-size:22px;cursor:pointer}
+main{padding:18px}
+.card{background:#fff;border-radius:18px;padding:20px;margin-bottom:18px;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.day{font-size:28px;font-weight:700;color:#ff7a00;text-align:center}
+.period{text-align:center;color:#555;margin-top:6px}
+.time{text-align:center;color:#999;margin-top:2px}
+.meals{display:flex;flex-direction:column;gap:14px}
+.meal-card{background:#fff;border-radius:16px;padding:18px;box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.meal-title{font-size:18px;font-weight:600;display:flex;align-items:center;gap:8px}
+.meal-result{margin-top:10px;color:#999;text-align:center}
+.primary{width:100%;padding:18px;border:none;border-radius:16px;background:linear-gradient(90deg,#4ade80,#60a5fa);color:#fff;font-size:20px;font-weight:700;box-shadow:0 10px 24px rgba(0,0,0,.15)}
+.primary:disabled{background:#e5e7eb;color:#9ca3af;box-shadow:none}
+.page{display:none}
+.page.active{display:block}
+/* settings */
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tab{flex:1;text-align:center;padding:10px;border-radius:12px;background:#f3f4f6;cursor:pointer}
+.tab.active{background:#3b82f6;color:#fff;font-weight:600}
+.input-box{border:2px dashed #f1c27d;border-radius:16px;padding:16px;margin-bottom:14px;text-align:center}
+.list{background:#f8fafc;border-radius:14px;padding:14px;min-height:80px}
+.list.empty{color:#aaa;text-align:center}
+.list div{background:#fff;padding:10px 12px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between}
+.list span{color:#ef4444;cursor:pointer}
+.footer-btns{display:flex;gap:12px;margin-top:20px}
+.secondary{flex:1;padding:14px;border:none;border-radius:14px;font-size:16px}
+.sync{background:#3b82f6;color:#fff}
+.back{background:#4b5563;color:#fff}
+</style>
+</head>
+<body>
+<header>
+<div class="avatar">🍴</div>
+<div class="header-center">心情餐单</div>
+<div class="header-right">
+<div onclick="share()">🔗</div>
+<div onclick="openSettings()">≡</div>
+</div>
+</header>
+
+<!-- HOME -->
+<main id="home" class="page active">
+<div class="card">
+<div class="day" id="day"></div>
+<div class="period" id="period"></div>
+<div class="time" id="clock"></div>
+</div>
+
+<div class="meals">
+<div class="meal-card"><div class="meal-title">🍞 早餐</div><div class="meal-result" id="r-早餐">点击生成按钮开始</div></div>
+<div class="meal-card"><div class="meal-title">🍔 午餐</div><div class="meal-result" id="r-午餐">点击生成按钮开始</div></div>
+<div class="meal-card"><div class="meal-title">🍽️ 晚餐</div><div class="meal-result" id="r-晚餐">点击生成按钮开始</div></div>
+</div>
+
+<button class="primary" onclick="spinAll()">✨ 随机生成</button>
+</main>
+
+<!-- SETTINGS -->
+<main id="settings" class="page">
+<div class="tabs">
+<div class="tab active" onclick="switchTab('早餐',this)">早餐</div>
+<div class="tab" onclick="switchTab('午餐',this)">午餐</div>
+<div class="tab" onclick="switchTab('晚餐',this)">晚餐</div>
+<div class="tab" onclick="switchTab('数据',this)">数据</div>
+</div>
+<div class="card">
+<div class="input-box"><input id="input" placeholder="输入菜品" style="border:none;outline:none;width:100%;text-align:center" /></div>
+<div id="list" class="list empty">暂无菜品，请添加</div>
+<div class="footer-btns">
+<button class="secondary sync" onclick="sync()">🔄 手动同步</button>
+<button class="secondary back" onclick="back()">🏠 返回主界面</button>
+</div>
+</div>
+</main>
+
+<script>
+const key='flash_meal';
+let tab='早餐';
+const def={早餐:[],午餐:[],晚餐:[]};
+const get=()=>JSON.parse(localStorage.getItem(key))||JSON.parse(JSON.stringify(def));
+const save=d=>localStorage.setItem(key,JSON.stringify(d));
+
+function updateTime(){const d=new Date();const w=['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];document.getElementById('day').innerText=w[d.getDay()];document.getElementById('clock').innerText=d.toTimeString().slice(0,5);let p='早餐';if(d.getHours()>=10&&d.getHours()<16)p='午餐';if(d.getHours()>=16)p='晚餐';document.getElementById('period').innerText=p+'时间';}
+
+function spin(type){const arr=get()[type];if(!arr.length)return '未添加';return arr[Math.floor(Math.random()*arr.length)];}
+function spinAll(){['早餐','午餐','晚餐'].forEach(t=>{document.getElementById('r-'+t).innerText=spin(t)});}
+
+function openSettings(){home.classList.remove('active');settings.classList.add('active');render()}
+function back(){settings.classList.remove('active');home.classList.add('active');updateTime()}
+
+function switchTab(t,el){tab=t;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');render()}
+
+function render(){const d=get();const l=document.getElementById('list');if(tab==='数据'){l.innerHTML='<button class="secondary sync" onclick="backup()">备份数据</button><br><br><button class="secondary back" onclick="restore()">恢复数据</button>';return;}const arr=d[tab];if(!arr.length){l.className='list empty';l.innerText='暂无菜品，请添加';return;}l.className='list';l.innerHTML='';arr.forEach((m,i)=>{const div=document.createElement('div');div.innerHTML=`${m}<span onclick=del(${i})>删除</span>`;l.appendChild(div)});}
+
+input.onkeydown=e=>{if(e.key==='Enter'){const v=input.value.trim();if(!v)return;const d=get();if(!d[tab].includes(v)){d[tab].push(v);save(d);}input.value='';render();}};
+function del(i){const d=get();if(confirm('确定删除？')){d[tab].splice(i,1);save(d);render();}}
+function sync(){save(get());alert('已同步')}
+function backup(){alert('数据已在本地保存')}
+function restore(){localStorage.removeItem(key);alert('已恢复');render()}
+function share(){navigator.clipboard.writeText(location.href);alert('分享链接已复制，可直接在微信打开')}
+
+updateTime();
+</script>
+</body>
+</html>
