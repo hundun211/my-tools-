@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>随机餐单</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="avatar">👤</div>
+    <div class="header-center">随机餐单</div>
+    <div class="header-right">
+      <div onclick="share()">分享</div>
+      <div onclick="openSettings()">☰</div>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <main id="home" class="page active">
+    <div class="card">
+      <div class="day" id="day"></div>
+      <div class="period" id="period"></div>
+      <div class="time" id="clock"></div>
+    </div>
+
+    <div class="meals">
+      <div class="meal-card"><div class="meal-title">早餐</div><div class="meal-result" id="r-早餐">点击生成按钮开始</div></div>
+      <div class="meal-card"><div class="meal-title">午餐</div><div class="meal-result" id="r-午餐">点击生成按钮开始</div></div>
+      <div class="meal-card"><div class="meal-title">晚餐</div><div class="meal-result" id="r-晚餐">点击生成按钮开始</div></div>
+    </div>
+
+    <button class="primary" onclick="spinAll()">随机生成</button>
+  </main>
+
+  <!-- SETTINGS -->
+  <main id="settings" class="page">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('早餐',this)">早餐</div>
+      <div class="tab" onclick="switchTab('午餐',this)">午餐</div>
+      <div class="tab" onclick="switchTab('晚餐',this)">晚餐</div>
+      <div class="tab" onclick="switchTab('数据',this)">数据</div>
+    </div>
+    <div class="card">
+      <div class="input-box"><input id="input" placeholder="添加菜品" style="border:none;outline:none;width:100%;text-align:center" /></div>
+      <div id="list" class="list empty">暂无菜品，请添加</div>
+      <div class="footer-btns">
+        <button class="secondary sync" onclick="sync()">同步数据</button>
+        <button class="secondary back" onclick="back()">返回首页</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
